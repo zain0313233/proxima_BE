@@ -12,6 +12,9 @@ const dbConfig = {
   connectionTimeoutMillis: parseInt(
     process.env.DB_CONNECTION_TIMEOUT || '2000'
   ),
+  ssl:false,
+  // ssl: process.env.POSTGRE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  // ssl: { rejectUnauthorized: false }
 };
 const pool = new Pool(dbConfig);
 async function testConnection() {

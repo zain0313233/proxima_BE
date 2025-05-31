@@ -3,11 +3,13 @@ const cors = require("cors");
 const { testConnection } = require("./database/index");
 require("dotenv").config();
 const creteUserRoutes = require("./routes/userRoutes");
+const TaskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/users", creteUserRoutes);
+app.use("/api/create-tasks", TaskRoutes);
 app.use("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",

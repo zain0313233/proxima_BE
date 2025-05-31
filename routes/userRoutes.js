@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
             name: username,
             email: email,
             password: password,
-            role: role || 'user',
+            role: role || 'member', // Changed from 'user' to 'member' to match database constraint
             created_at: new Date()
         });
 

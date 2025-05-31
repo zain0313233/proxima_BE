@@ -34,10 +34,10 @@ const User = Sequelize.define('User', {
     },
     role: {
         type: DataTypes.STRING,
-        defaultValue: 'user',
+        defaultValue: 'member', // Changed from 'user' to 'member'
         allowNull: false,
         validate: {
-            isIn: [['user', 'teacher', 'admin']]
+            isIn: [['member', 'manager', 'admin']] // Updated to match database constraint
         }
     },
     created_at: {

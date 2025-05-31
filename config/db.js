@@ -9,12 +9,11 @@ const sequelize= new Sequelize(
          host: process.env.POSTGRE_HOST,
          port: process.env.POSTGRE_PORT,
          dialect: 'postgres',
-         dialectOptions: {
-             ssl: {
-                 require: true,
-                 rejectUnauthorized: false // This is important for self-signed certificates
-             }
-         },
+        dialectOptions: {
+            // Remove SSL requirement for local development
+            ssl: false
+            // OR completely remove the dialectOptions if not needed
+        },
          define:{
             schema:"proxima_schema"
          }
