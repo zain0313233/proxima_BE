@@ -1,11 +1,17 @@
-const Sequelize = require('./../config/db')
-const { DataTypes } = require('sequelize')
+const Sequelize = require('./../config/db');
+const { DataTypes } = require('sequelize');
 
 const User = Sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+    },
+    supabase_id: {
+        type: DataTypes.UUID,
+        allowNull: true, // Initially null for existing users
+        unique: true,
+        comment: 'Links to Supabase auth.users.id'
     },
     name: {
         type: DataTypes.STRING,
@@ -26,19 +32,23 @@ const User = Sequelize.define('User', {
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true, // Make nullable during transition
         validate: {
-            notEmpty: true,
             len: [6, 255]
         }
     },
     role: {
         type: DataTypes.STRING,
-        defaultValue: 'member', // Changed from 'user' to 'member'
+        defaultValue: 'member',
         allowNull: false,
         validate: {
-            isIn: [['member', 'manager', 'admin']] // Updated to match database constraint
+            isIn: [['member', 'manager', 'admin']]
         }
+    },
+    is_supabase_user: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        comment: 'Indicates if user is using Supabase auth'
     },
     created_at: {
         type: DataTypes.DATE,
@@ -49,8 +59,8 @@ const User = Sequelize.define('User', {
     tableName: 'users',
     timestamps: false,
     schema: 'proxima_schema'
-})
+});
 
 module.exports = {
     User
-}
+};
