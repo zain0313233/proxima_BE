@@ -1,5 +1,5 @@
-const Sequelize = require('./../config/db')
-const { DataTypes } = require('sequelize')
+const Sequelize = require('./../config/db');
+const { DataTypes } = require('sequelize');
 
 const Tasks = Sequelize.define('Tasks', {
     id: {
@@ -31,26 +31,41 @@ const Tasks = Sequelize.define('Tasks', {
     status: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: 'pending'
+        defaultValue: 'pending',
+        validate: {
+            isIn: [['pending', 'in_progress', 'completed', 'cancelled']]
+        }
     },
     priority: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: 'medium'
+        defaultValue: 'medium',
+        validate: {
+            isIn: [['low', 'medium', 'high', 'urgent']]
+        }
     },
     assigned_to: {
         type: DataTypes.INTEGER,
-        allowNull: true
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'id'
+        }
     },
     created_by: {
         type: DataTypes.INTEGER,
-        allowNull: true
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'id'
+        }
     }
 }, {
     tableName: 'tasks',
-    timestamps: false
-})
+    timestamps: false,
+    schema: 'proxima_schema'
+});
 
 module.exports = {
-    Tasks,
-}
+    Tasks
+};

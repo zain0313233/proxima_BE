@@ -25,14 +25,13 @@ router.post("/signup", async (req, res) => {
         message: "User with this email already exists"
       });
     }
-    const { data: authData, error: authError } = await subpass.auth.signUp({
+     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: email,
       password: password,
-      options: {
-        data: {
-          name: name
-        }
-      }
+      user_metadata: {
+        name: name
+      },
+      email_confirm: true // This confirms the email immediately
     });
     if (authError) {
       return res.status(400).json({
@@ -69,7 +68,8 @@ router.post("/signup", async (req, res) => {
         role: newUser.role
       },
       session: authData.session,
-      needsEmailVerification: !authData.session
+      needsEmailVerification:false, // Assuming email verification is not needed for this flow
+      // needsEmailVerification: !authData.session
     });
   } catch (error) {
     console.error("Signup error:", error);
