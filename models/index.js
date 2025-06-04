@@ -2,6 +2,7 @@ const Sequelize = require('./../config/db');
 const { DataTypes } = require('sequelize');
 const { Tasks } = require('./Tasks');
 const { User } = require('./User');
+const {Organization} = require('./Organization');
 
 function initializeAssociations() {
    
@@ -15,7 +16,16 @@ function initializeAssociations() {
         foreignKey: 'created_by',
         as: 'tasksCreated'
     });
+    
+    User.hasMany(Organization, {
+        foreignKey: 'owner_id',
+        as: 'organizationsOwned'
+    });
 
+    Organization.belongsTo(User, {
+        foreignKey: 'owner_id',
+        as: 'owner'
+    });
 
     Tasks.belongsTo(User, {
         foreignKey: 'assigned_to',
@@ -37,5 +47,6 @@ module.exports = {
     DataTypes,
     Tasks,
     User,
+    Organization,
     initializeAssociations
 };

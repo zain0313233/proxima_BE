@@ -84,6 +84,39 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/getByUser/:userId', async (req, res) => {
+try{
+  const { userId } = req.params;
+
+  const tasks = await Tasks.findAll({
+    where: {
+      assigned_to: userId
+    },
+    order: [['created_at', 'DESC']]
+  });
+
+  if (tasks.length === 0) {
+    return res.status(404).json({
+      status: "error",
+      message: "No tasks found for this user"
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Tasks retrieved successfully",
+    tasks: tasks
+  });
+
+}catch (err) {
+  console.error('Error fetching tasks by user:', err);
+  res.status(500).json({
+    status: "error",
+    message: "Failed to fetch tasks by user"
+  });
+}
+});
+
 
 router.get('/', async (req, res) => {
   try {
@@ -203,6 +236,42 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Failed to delete task"
+    });
+  }
+});
+router.put('/status/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    // Add await here
+    const task = await Tasks.findByPk(id);
+    
+    if (!task) {
+      return res.status(404).json({
+        status: "error",
+        message: "Task not found"
+      });
+    }
+    
+    // Pass the status object to update
+    await task.update({ status });
+    
+    res.status(200).json({
+      status: "success",
+      message: "Task status updated successfully",
+      task: {
+        id: task.id,
+        name: task.name,
+        status: task.status
+      }
+    });
+    
+  } catch (err) {
+    console.error('Error updating task status:', err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to update task status"
     });
   }
 });
