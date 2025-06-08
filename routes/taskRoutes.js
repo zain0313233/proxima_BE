@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Check if user exists (if created_by is provided)
+  
     if (created_by) {
       const user = await User.findOne({ where: { id: created_by } });
       if (!user) {
@@ -116,6 +116,7 @@ try{
   });
 }
 });
+
 
 
 router.get('/', async (req, res) => {
@@ -274,6 +275,109 @@ router.put('/status/:id', async (req, res) => {
       message: "Failed to update task status"
     });
   }
+});
+
+router.post('/create-Task', async (req, res) => {
+  try {
+    const {
+      name,
+      created_at,
+      due_date,
+      description,
+      status,
+      priority,
+      assigned_to,
+      created_by
+    } = req.body;
+
+    
+    if (!name) {
+      return res.status(400).json({
+        status: "error",
+        message: "Task name is required"
+      });
+    }
+
+  
+    if (created_by) {
+      const user = await User.findOne({ where: { id: created_by } });
+      if (!user) {
+        return res.status(404).json({
+          status: "error",
+          message: "User not found"
+        });
+      }
+    }
+
+   
+    const newTask = await Tasks.create({
+      name,
+      created_at: created_at || new Date(),
+      due_date,
+      description,
+      status: status || 'pending',
+      priority: priority || 'medium',
+      assigned_to,
+      created_by
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "Task created successfully",
+      task: {
+        id: newTask.id,
+        name: newTask.name,
+        created_at: newTask.created_at,
+        due_date: newTask.due_date,
+        description: newTask.description,
+        status: newTask.status,
+        priority: newTask.priority,
+        assigned_to: newTask.assigned_to,
+        created_by: newTask.created_by
+      }
+    });
+
+  } catch (err) {
+    console.error('Error creating task:', err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to create task",
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+router.get('/getUser/:userId', async (req, res) => {
+try{
+  const { userId } = req.params;
+
+  const tasks = await Tasks.findAll({
+    where: {
+      created_by: userId
+    },
+    order: [['created_at', 'DESC']]
+  });
+
+  if (tasks.length === 0) {
+    return res.status(404).json({
+      status: "error",
+      message: "No tasks found for this user"
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Tasks retrieved successfully",
+    tasks: tasks
+  });
+
+}catch (err) {
+  console.error('Error fetching tasks by user:', err);
+  res.status(500).json({
+    status: "error",
+    message: "Failed to fetch tasks by user"
+  });
+}
 });
 
 module.exports = router;
