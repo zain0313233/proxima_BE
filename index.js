@@ -7,6 +7,7 @@ const TaskRoutes = require("./routes/taskRoutes");
 const authRoutes=require("./routes/authRoutes");
 const ProjectRoutes = require("./routes/projectRoute");
 const OrganizationRoutes = require("./routes/organizationRoutes");
+const {authenticateToken}=require("./middleware/auth");
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -16,11 +17,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/organizations", OrganizationRoutes);
+app.use("/api/organizations",authenticateToken, OrganizationRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", creteUserRoutes);
-app.use("/api/projects", ProjectRoutes);
-app.use("/api/tasks", TaskRoutes);
+app.use("/api/users", authenticateToken, creteUserRoutes);
+app.use("/api/projects",authenticateToken, ProjectRoutes);
+app.use("/api/tasks",authenticateToken, TaskRoutes);
 app.use("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
