@@ -153,15 +153,15 @@ router.post('/signin', async (req, res) => {
     }
 });
 
-// Sign Out - Invalidate Supabase session
+
 router.post('/signout', authenticateToken, async (req, res) => {
     try {
-        // Get the JWT token from the request
+       
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(" ")[1];
 
         if (token) {
-            // Sign out from Supabase
+          
             const { error } = await supabase.auth.signOut(token);
             
             if (error) {
@@ -184,7 +184,6 @@ router.post('/signout', authenticateToken, async (req, res) => {
     }
 });
 
-// Refresh Token - Get new access token
 router.post('/refresh', async (req, res) => {
     try {
         const { refresh_token } = req.body;
@@ -196,7 +195,7 @@ router.post('/refresh', async (req, res) => {
             });
         }
 
-        // Refresh session with Supabase
+      
         const { data: authData, error: authError } = await supabase.auth.refreshSession({
             refresh_token: refresh_token
         });
@@ -221,6 +220,92 @@ router.post('/refresh', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to refresh token',
+            error: error.message
+        });
+    }
+});
+// Password reset request
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required'
+            });
+        }
+
+        // Send password reset email via Supabase
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${process.env.FRONTEND_URL}/reset-password`
+        });
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: 'Failed to send reset email',
+                error: error.message
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset email sent successfully'
+        });
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to process password reset request',
+            error: error.message
+        });
+    }
+});
+
+// Update password
+router.post('/update-password', authenticateToken, async (req, res) => {
+    try {
+        const { password } = req.body;
+
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password is required'
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+
+       
+        const { error } = await supabase.auth.updateUser({
+            password: password
+        });
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: 'Failed to update password',
+                error: error.message
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+
+    } catch (error) {
+        console.error('Update password error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update password',
             error: error.message
         });
     }
