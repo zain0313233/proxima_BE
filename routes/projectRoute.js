@@ -63,7 +63,7 @@ router.get("/get-projects/:owner_id", async (req, res) => {
         return res.status(200).json({
             status: "success",
             message: "Projects retrieved successfully",
-            data: projects
+            projects: projects
         });
     
     }catch (err) {
@@ -71,5 +71,51 @@ router.get("/get-projects/:owner_id", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
+
+router.get("/get-org-project", async (req, res) => {
+  try {
+    const { owner_id, organization_id } = req.query;
+    
+    if (!owner_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Owner ID is required"
+      });
+    }
+    
+    if (!organization_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Organization ID is required"
+      });
+    }
+    
+    const projects = await Project.findAll({
+      where: {
+        organization_id: organization_id,
+        owner_id: owner_id
+      }
+    });
+    if (!projects || projects.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No projects found"
+      });
+    }
+    
+    return res.status(200).json({
+      status: "success",
+      message: "Projects retrieved successfully",
+      data: projects
+    });
+    
+  } catch (error) {
+    console.error("Error fetching project info:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+});
 
 module.exports = router;
